@@ -646,3 +646,143 @@ main > p {
     gap: 5px;
   }
 }
+
+
+/* Toast notifications */
+
+.toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  max-width: min(400px, calc(100vw - 32px));
+  padding: 14px 18px;
+
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid;
+  border-radius: 10px;
+
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+
+  color: #222;
+  font-size: 14px;
+
+  animation: toastSlideIn 0.3s ease-out;
+}
+
+.toast-success {
+  border-left-color: #16a34a;
+}
+
+.toast-error {
+  border-left-color: #dc2626;
+}
+
+.toast-icon {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.toast-success .toast-icon {
+  color: #16a34a;
+}
+
+.toast-error .toast-icon {
+  color: #dc2626;
+}
+
+.toast-close {
+  margin-left: auto;
+  padding: 2px 5px;
+
+  background: transparent;
+  border: none;
+
+  color: #6b7280;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.toast-close:hover {
+  color: #111827;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .toast {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+    max-width: none;
+  }
+}
+
+
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 38px;
+  box-sizing: border-box;
+}
+
+.password-input-wrapper .password-toggle,
+.password-input-wrapper .password-toggle:hover,
+.password-input-wrapper .password-toggle:focus,
+.password-input-wrapper .password-toggle:focus-visible,
+.password-input-wrapper .password-toggle:active {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+
+  width: 22px;
+  height: 22px;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transform: translateY(-50%) !important;
+  transition: none !important;
+  animation: none !important;
+
+  border: none;
+  border-radius: 0;
+  background: transparent !important;
+  color: #888;
+  box-shadow: none !important;
+  outline: none;
+
+  cursor: pointer;
+}
+
+.password-input-wrapper .password-toggle svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+  pointer-events: none;
+}
