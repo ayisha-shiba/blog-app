@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { signOut } from "firebase/auth";
@@ -15,11 +14,19 @@ export default function BlogList() {
   const [deletingId, setDeletingId] = useState(null);
   const deletingIds = useRef(new Set());
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredBlogs = blogs.filter((blog) => {
+    const q = searchTerm.trim().toLowerCase();
+    return (
+      blog.title.toLowerCase().includes(q) ||
+      blog.content.toLowerCase().includes(q)
+    );
+  });
+
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Display success toast after creating or editing a blog.
   useEffect(() => {
     const message = location.state?.toast;
 
@@ -30,14 +37,12 @@ export default function BlogList() {
       type: "success",
     });
 
-    // Clear navigation state to prevent repeated toasts.
     navigate(location.pathname, {
       replace: true,
       state: null,
     });
   }, [location.state, location.pathname, navigate]);
 
-  // Automatically dismiss toast after 3 seconds.
   useEffect(() => {
     if (!toast) return;
 
@@ -55,7 +60,6 @@ export default function BlogList() {
     });
   }
 
-  // Load blogs.
   useEffect(() => {
     if (!user?.uid) {
       setBlogs([]);
@@ -78,10 +82,7 @@ export default function BlogList() {
         console.error("Load blogs error:", err);
 
         if (!cancelled) {
-          showToast(
-            "Couldn't load your blogs. Please try again.",
-            "error"
-          );
+          showToast("Couldn't load your blogs. Please try again.", "error");
         }
       } finally {
         if (!cancelled) {
@@ -102,7 +103,7 @@ export default function BlogList() {
     if (deletingIds.current.has(id)) return;
 
     const confirmed = window.confirm(
-      "Are you sure you want to delete this blog?"
+      "Are you sure you want to delete this blog?",
     );
 
     if (!confirmed) return;
@@ -113,18 +114,13 @@ export default function BlogList() {
     try {
       await deleteBlog(id);
 
-      setBlogs((previous) =>
-        previous.filter((blog) => blog.id !== id)
-      );
+      setBlogs((previous) => previous.filter((blog) => blog.id !== id));
 
       showToast("Blog deleted successfully!");
     } catch (err) {
       console.error("Delete blog error:", err);
 
-      showToast(
-        "Couldn't delete this blog. Please try again.",
-        "error"
-      );
+      showToast("Couldn't delete this blog. Please try again.", "error");
     } finally {
       deletingIds.current.delete(id);
       setDeletingId(null);
@@ -133,9 +129,7 @@ export default function BlogList() {
 
   // Logout.
   async function handleLogout() {
-    const confirmed = window.confirm(
-      "Are you sure you want to log out?"
-    );
+    const confirmed = window.confirm("Are you sure you want to log out?");
 
     if (!confirmed) return;
 
@@ -148,19 +142,14 @@ export default function BlogList() {
     } catch (err) {
       console.error("Logout error:", err);
 
-      showToast(
-        "Couldn't log out. Please try again.",
-        "error"
-      );
+      showToast("Couldn't log out. Please try again.", "error");
     }
   }
 
   if (loading) {
     return (
       <main className="blog-dashboard">
-        <p className="loading-message">
-          Gathering your stories...
-        </p>
+        <p className="loading-message">Gathering your stories...</p>
       </main>
     );
   }
@@ -200,25 +189,20 @@ export default function BlogList() {
         <div className="nav-actions">
           <span className="user-email">{user?.email}</span>
 
-          <button
-            className="button-secondary"
-            onClick={handleLogout}
-          >
+          <button className="button-secondary" onClick={handleLogout}>
             Log out
           </button>
         </div>
       </nav>
 
       <section className="dashboard-intro">
-        <p className="eyebrow">
-          YOUR PERSONAL WRITING SPACE
-        </p>
+        <p className="eyebrow">YOUR PERSONAL WRITING SPACE</p>
 
         <h1>Write new Blog</h1>
 
         <p className="intro-description">
-          Collect your ideas, share your stories, and make
-          room for the things worth writing about.
+          Collect your ideas, share your stories, and make room for the things
+          worth writing about.
         </p>
 
         <Link to="/blogs/new" className="button-primary">
@@ -227,6 +211,16 @@ export default function BlogList() {
       </section>
 
       <section className="stories-section">
+        <div className="search-container">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search your stories.."
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            aria-label="search blogs"
+          />
+        </div>
         <div className="section-heading">
           <div>
             <p className="eyebrow">YOUR COLLECTION</p>
@@ -234,12 +228,16 @@ export default function BlogList() {
           </div>
 
           <span className="story-count">
-            {blogs.length}{" "}
-            {blogs.length === 1 ? "story" : "stories"}
+            {blogs.length} {blogs.length === 1 ? "story" : "stories"}
           </span>
         </div>
 
-        {blogs.length === 0 ? (
+        {filteredBlogs.length === 0 && searchTerm.trim() ? (
+          <div className="empty-state">
+            <h3>No stories found.</h3>
+            <p>Try a different title or keyword.</p>
+          </div>
+        ) : blogs.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon" aria-hidden="true">
               ✎
@@ -247,43 +245,27 @@ export default function BlogList() {
 
             <h3>Your first story starts here.</h3>
 
-            <p>
-              You haven't written anything yet.
-              Start with an idea.
-            </p>
+            <p>You haven't written anything yet. Start with an idea.</p>
 
-            <Link
-              to="/blogs/new"
-              className="button-primary"
-            >
+            <Link to="/blogs/new" className="button-primary">
               Write your first story
             </Link>
           </div>
         ) : (
           <div className="stories-grid">
-            {blogs.map((blog) => (
-              <article
-                className="story-card"
-                key={blog.id}
-              >
+            {filteredBlogs.map((blog) => (
+              <article className="story-card" key={blog.id}>
                 <div className="story-card-top">
-                  <span className="story-label">
-                    JOURNAL ENTRY
-                  </span>
+                  <span className="story-label">JOURNAL ENTRY</span>
 
-                  <span
-                    className="story-dot"
-                    aria-hidden="true"
-                  >
+                  <span className="story-dot" aria-hidden="true">
                     ✳
                   </span>
                 </div>
 
                 <h3>{blog.title}</h3>
 
-                <p className="story-excerpt">
-                  {blog.content}
-                </p>
+                <p className="story-excerpt">{blog.content}</p>
 
                 <div className="story-footer">
                   <span className="story-author">
@@ -294,9 +276,7 @@ export default function BlogList() {
                     <div className="story-actions">
                       <button
                         className="text-button"
-                        onClick={() =>
-                          navigate(`/blogs/edit/${blog.id}`)
-                        }
+                        onClick={() => navigate(`/blogs/edit/${blog.id}`)}
                       >
                         Edit
                       </button>
@@ -306,9 +286,7 @@ export default function BlogList() {
                         disabled={deletingId === blog.id}
                         onClick={() => handleDelete(blog.id)}
                       >
-                        {deletingId === blog.id
-                          ? "Deleting..."
-                          : "Delete"}
+                        {deletingId === blog.id ? "Deleting..." : "Delete"}
                       </button>
                     </div>
                   )}

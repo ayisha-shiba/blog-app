@@ -20,25 +20,20 @@ export default function BlogForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Prevent rapid duplicate submissions.
   const submissionLock = useRef(false);
 
   useEffect(() => {
     if (!id || !user?.uid) return;
-
     let cancelled = false;
-
     async function loadBlog() {
       try {
         const blog = await getBlogById(id);
-
         if (cancelled) return;
 
         if (!blog || blog.authorId !== user.uid) {
           setError("Blog not found or access denied.");
           return;
         }
-
         setTitle(blog.title);
         setContent(blog.content);
       } catch (err) {
@@ -84,7 +79,6 @@ export default function BlogForm() {
     const cleanTitle = title.trim();
     const cleanContent = content.trim();
 
-    // Title validation.
     if (!cleanTitle) {
       setError("Title is required.");
       return;
@@ -122,13 +116,11 @@ export default function BlogForm() {
 
     try {
       if (id) {
-        // Update the existing Firestore document.
         await updateBlog(id, {
           title: cleanTitle,
           content: cleanContent,
         });
       } else {
-        // Create a new blog.
         await createBlog({
           title: cleanTitle,
           content: cleanContent,

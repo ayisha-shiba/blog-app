@@ -786,3 +786,24 @@ main > p {
   height: 15px;
   pointer-events: none;
 }
+.search-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 0 28px;
+}
+
+.search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 16px;
+  border: 1px solid #d8d8ce;
+  border-radius: 8px;
+  background: #fffdf8;
+  color: #333;
+  font-size: 15px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #7b8b70;
+}
